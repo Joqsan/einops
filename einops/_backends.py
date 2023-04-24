@@ -680,3 +680,69 @@ class PaddleBackend(AbstractBackend):
 
     def shape(self, x):
         return tuple(x.shape)
+
+
+class TinygradBackend(AbstractBackend):
+    framework_name = 'tinygrad'
+
+    def __init__(self):
+        import tinygrad
+        self.tinygrad = tinygrad
+        self.Tensor = tinygrad.tensor.Tensor
+    
+    def is_appropriate_type(self, tensor):
+        return isinstance(tensor, self.Tensor)
+
+    def from_numpy(self, x):
+        variable = self.Tensor(x, requires_grad=True)
+        return variable
+
+    def to_numpy(self, x):
+        return x.detach().numpy()
+
+    def reshape(self, x, shape):
+        if len(shape) == 0:
+            return x
+        return x.reshape(shape)
+    
+    def arange(self, start, stop):
+        return self.Tensor.arange(start, stop)
+    
+    def transpose(self, x, axes):
+        if len(axes) == 0:
+            return x
+        return x.permute(axes)
+    
+    def reduce(self, x, operation, axes):
+        if operation in {'sum', 'max','min', 'mean'}:
+            return getattr(x, operation)(axis=axes)
+        else:
+            raise NotImplementedError('Unknown reduction ', operation)
+
+    def stack_on_zeroth_dimension(self, tensors: list):
+        return self.Tensor.stack(tensors)
+
+    def add_axis(self, x, new_position):
+        return x.unsqueeze(dim=new_position)
+
+    def add_axes(self, x, n_axes, pos2len):
+        repeats = [1] * n_axes
+        for axis_position, axis_length in pos2len.items():
+            x = self.add_axis(x, axis_position)
+            repeats[axis_position] = axis_length
+        return self.tile(x, tuple(repeats))
+
+    def tile(self, x, repeats):
+        return x.repeat(repeats)
+
+    def concat(self, tensors, axis: int):
+        first = tensors[0]
+        return first.cat(*tensors[1:], dim=axis)
+
+    def is_float_type(self, x):
+        from tinygrad.helpers import dtypes
+        return x.dtype in {dtypes.float16, dtypes.float32}
+
+    def layers(self):
+        from .layers import tinygrad
+        return tinygrad
