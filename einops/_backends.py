@@ -687,8 +687,9 @@ class TinygradBackend(AbstractBackend):
 
     def __init__(self):
         import tinygrad
+        from tinygrad.tensor import Tensor
         self.tinygrad = tinygrad
-        self.Tensor = tinygrad.tensor.Tensor
+        self.Tensor = Tensor
     
     def is_appropriate_type(self, tensor):
         return isinstance(tensor, self.Tensor)

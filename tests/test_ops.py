@@ -106,6 +106,9 @@ def test_ellipsis_ops_imperative():
 
             for reduction in ['min', 'max', 'sum']:
                 for pattern in itertools.chain(*equivalent_reduction_patterns):
+                    if reduction == 'min' and pattern == 'a b c d e -> ':
+                        pytest.set_trace()
+                        pass
                     check_op_against_numpy(backend, x, pattern, axes_lengths={},
                                            reduction=reduction, is_symbolic=is_symbolic)
 
@@ -271,6 +274,8 @@ def test_reduction_stress_imperatives():
                 max_dim = 7
             if 'paddle' in backend.framework_name:
                 max_dim = 9
+            if 'tinygrad' in backend.framework_name:
+                max_dim = 6
             for n_axes in range(max_dim):
                 shape = numpy.random.randint(2, 4, size=n_axes)
                 permutation = numpy.random.permutation(n_axes)
@@ -514,3 +519,8 @@ def test_anonymous_axes():
     x = numpy.arange(1 * 2 * 4 * 6).reshape([1, 2, 4, 6])
     for pattern, axis_dimensions in test_cases_repeat_anonymous:
         check_reversion(x, pattern, **axis_dimensions)
+
+
+
+# if __name__ == '__main__':
+#     test_ellipsis_ops_imperative()

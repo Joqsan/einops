@@ -294,6 +294,7 @@ Einops works with ...
 - [oneflow](https://github.com/Oneflow-Inc/oneflow) (experimental)
 - [flax](https://github.com/google/flax) (experimental)
 - [paddle](https://github.com/PaddlePaddle/Paddle) (experimental)
+- [tinygrad](https://github.com/geohot/tinygrad) (experimental)
 - [gluon](https://gluon.mxnet.io/) (deprecated)
 
 ## Citing einops <a name="Contributing"></a>
